@@ -1,0 +1,83 @@
+{{{cleanheaders}}}
+
+* Chapter 2: Starting Out
+** Ready, set, go!
+-  ~ghci~ works analogously to ~irb~, and the functions you expect exist (~+~, ~-~, ~*~, ~/~, ~&&~, ~||~, ~==~)
+- Note that ``not equals" is spelled ~/=~ (not ~!=~). If you think about it that's closer to ≠ anyway.
+- Instead of ~!~, use ~not~
+- Precedence with negative numbers is weird, so use parens: ~5 * (-3)~ (instead of ~5 * -3~)
+- Call functions as you expect, no parens required: ~min 9 10 #=> 9~
+** Baby's first functions
+-  Define and use a function like so:
+#+BEGIN_SRC haskell
+doubleMe x = x + x
+--
+> doubleMe 42
+84
+#+END_SRC
+- ~if~ is an /expression/ (technically true in Ruby, too), so you should really care about its return value. It looks like this:
+#+BEGIN_SRC haskell
+doubleSmallNumber x = if x > 100
+                        then x
+                        else x*2
+#+END_SRC
+- Note that the apostrophe is a valid character in variable/function names, and is frequently used to indicate a slightly-modified version of something (in which case it'd be pronounced ``prime")
+** An intro to lists
+- Haskellers love lists
+- Unlike Ruby, everything in a list must be of the same type
+- Syntax is what you think: ~[1,2,3]~ (I don't know why Miran doesn't use spaces)
+- Concatenate lists with ~++~: ~[1, 2] ++ [3, 4] #=> [1, 2, 3, 4]~
+- Strings are literally just lists of characters and behave as you'd expect: ~"hello" ++ " " ++ "world" #=> "hello world"~, ~['w', 'o'] ++ ['o', 't'] #=> "woot"~
+- Note that characters use single quotes; note that characters are not strings
+- Prepend something to a list (which you do more often than you think) with ~:~: ~'A':" SMALL CAT" #=> "A SMALL CAT"~
+- Index into lists with ~!!~: ~"Horse Muffin" !! 6 #=> 'M'~ (note that it returns a character)
+- Lists can nest: ~[[1, 2], [3, 4, 5]]~
+- Other useful list functions include ~head~ (just the first element), ~tail~ (a list with everything but the head), ~last~ (you have one guess), and ~init~ (a list with everything but the last item)
+- If you try to use one of those on an empty list it'll throw an exception because Haskell doesn't mess around
+- ~length~ and ~reverse~ do what you think
+- ~take~ and ~drop~ either keep or remove a certain number of elements from the front of the list: ~take 3 [5, 4, 3, 2, 1] #=> [5, 4, 3]~ but ~drop 3 [5, 4, 3, 2, 1] #=> [2, 1]~
+- ~maximum~, ~minimum~, ~sum~, and ~product~ work as you expect
+- ~elem~ checks if something is an element of the list: ~4 `elem` [3, 4, 5, 6] #=> True~ Whoa! What are those backticks? Read on…
+** Tim's aside on infix functions
+- For two-argument functions, Haskell lets you use them either with prefix notation (~add 2 3~) or infix notation (~2 + 3~)
+- Some functions are infix by default, such as all the mathy ones discussed above
+- Functions that are prefix by default can still be used in an infix way with backticks, thus the above example: ~4 `elem` [3, 4, 5, 6]~. Miran wrote it that way because he thinks (and, for what it's worth, I agree) that it reads better than the equivalent ~elem 4 [3, 4, 5, 6]~. It'd be easy to flip the arguments by mistake when it's prefix, but since it's infix it readys nicely: ``is ~4~ an element of ~[3, 4, 5, 6]~?"
+- There are occasionally instances where you need to refer to a function without calling it.  It works as you expect with prefix functions, but infix-by-default functions need paren hugs:
+#+BEGIN_SRC haskell
+-- Let's get the type of elem
+> :t elem
+elem :: (Foldable t, Eq a) => a -> t a -> Bool
+
+-- What about the type of +?
+> :t +
+
+<interactive>:1:1: error: parse error on input ‘+’
+
+-- Oh, right, it needs parens like so:
+> :t (+)
+(+) :: Num a => a -> a -> a
+#+END_SRC
+** Texas ranges
+- You can make a range like this, much like Ruby: ~[1..5] #+> [1, 2, 3, 4, 5]~
+- Unlike Ruby, you can mix and match: ~[2, 4..6] #=> [2, 4, 5, 6]~
+- ~cycle~ repeats a list forever: ~take 10 (cycle [1,2,3]) #=> [1,2,3,1,2,3,1,2,3,1]~
+- ~repeat~ repeats an element forever: ~take 10 (repeat 5) #=> [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]~
+** Tim's aside on laziness
+- Haskell is /lazy/, which means that when you call a function it doesn't actually do the work
+- Instead, the work happens when you do something that uses the work—and in that case, Haskell does only as much work as required
+- So if you just have a ~let x = repeat 5~, pretty much nothing happens, but theoretically ~x~ now refers to an infinite list of ~5~ s
+- When we call ~take 10~, ~take~ is like ``yo, I need to see the first 10 things in your list!" and then ~repeat~ only makes the 10 repetitions that were asked for
+- This is in general really useful (we'll see why with a better example later), but it's worth noting that some bugs can be a little puzzling until you realize the computations you thought were happening when you called a function are actually delayed until later
+** I am a list comprehension
+- Honestly you should just read it unless this makes sense to you:
+#+BEGIN_SRC haskell
+[ x | x <- [10..20], x /= 13, x /= 15, x /= 19]
+[10,11,12,14,16,17,18,20]
+#+END_SRC
+** Tuples
+- Tuples are a data structure that doesn't really have an analogue in Ruby
+- They are a /fixed-length/ list-like thing
+- Unlike lists, each thing can be a different type
+- They're written with parentheses: ~(1, 2)~ is a two-element tuple
+- The types nest; if you write a function that expects a two-element tuple whose first element is an integer and second element is a string, the above tuple (~(1, 2)~) will not do the job!
+- He talks about some other tupley things but I don't think it's relevant
